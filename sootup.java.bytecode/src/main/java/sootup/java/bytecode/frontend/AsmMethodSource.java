@@ -1171,8 +1171,8 @@ public class AsmMethodSource extends JSRInlinerAdapter implements BodySource {
         || kind == MethodHandle.Kind.REF_PUT_FIELD_STATIC.getValue()) {
       return Jimple.newStaticFieldRef(fieldSignature);
     } else {
-      Operand base = operandStack.popLocal();
-      return Jimple.newInstanceFieldRef((Local) base.stackOrValue(), fieldSignature);
+      Local base = new Local("unknown", UnknownType.getInstance());
+      return Jimple.newInstanceFieldRef(base, fieldSignature);
     }
   }
 
@@ -1383,12 +1383,12 @@ public class AsmMethodSource extends JSRInlinerAdapter implements BodySource {
       AbstractInvokeExpr expr = (AbstractInvokeExpr) opr.value;
       List<Type> types = expr.getMethodSignature().getParameterTypes();
       Operand[] oprs;
-      int nrArgs = types.size() - 1;
+      int nrArgs = types.size();
       final boolean isStaticInvokeExpr = expr instanceof JStaticInvokeExpr;
       if (isStaticInvokeExpr) {
-        oprs = (nrArgs <= 0) ? null : new Operand[nrArgs];
+        oprs = (nrArgs <= 0) ? null : new Operand[nrArgs - 1];
       } else {
-        oprs = (nrArgs < 0) ? null : new Operand[nrArgs + 1];
+        oprs = (nrArgs < 0) ? null : new Operand[nrArgs];
       }
       if (oprs != null) {
         while (nrArgs-- > 0) {
